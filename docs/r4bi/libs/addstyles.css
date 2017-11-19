@@ -1,0 +1,126 @@
+.title-slide {
+  background-image: url(../img/ardata.svg);
+  background-position: center top;
+  background-size: 30%;
+}
+
+
+.title-slide .remark-slide-number {
+  display: none;
+}
+
+.remark-slide-content h2{
+ margin-top: 10px;
+}
+
+
+@font-face {
+	font-family: "pacifico";
+	src: url('fonts/pacifico/Pacifico.ttf');
+}
+
+@font-face {
+    font-family: "bitstream";
+    src: url("fonts/bitstream/VeraMono.ttf");
+}
+@font-face {
+    font-family: "bitstream";
+    src: url("fonts/bitstream/VeraMono-Bold.ttf");
+    font-weight: bold;
+}
+@font-face {
+    font-family: "bitstream";
+    src: url("fonts/bitstream/VeraMono-Italic.ttf");
+    font-style: italic, oblique;
+}
+@font-face {
+    font-family: "bitstream";
+    src: url("fonts/bitstream/VeraMono-Bold-Italic.ttf");
+    font-weight: bold;
+    font-style: italic, oblique;
+}
+
+@font-face {
+    font-family: "Slashfold";
+    src: url("fonts/Slashfold.ttf");
+}
+
+.textonimg {
+    font-style: normal;
+    font-size: 3em;
+    font-weight: bold;
+    word-spacing: 20pt;
+    background-color: rgba(148, 148, 148, 0.63);
+}
+
+
+.sing {
+  font-family: "pacifico";
+  color:#006699;
+  font-size:3em;
+  word-spacing: 20pt;
+}
+
+.declare {
+  font-family: "bitstream";
+  color:#006699;
+  font-size:2em;
+}
+
+
+.bigtext {
+  color:#AA9961;
+  font-weight:bold;
+  font-size:1.2em;
+}
+
+.kindoftitle {
+  text-align:center;
+  font-weight:bold;
+  font-size:3em;
+
+}
+
+.kindofsubtitle {
+  text-align:center;
+  font-weight:bold;
+  font-size:1.5em;
+  color:#006699;
+  border-bottom: 1px solid #AA9961;
+}
+
+img {
+    max-width: 100%;
+}
+
+h1 {
+    color:#006699;
+}
+.left-column h2, .left-column h3 {
+    color:rgba(100, 100, 100, 0.5);
+}
+.left-column h2:last-of-type, .left-column h3:last-child {
+    color:#AA9961;
+}
+
+.remark-inline-code{
+  background-color: #97994638;
+  color: #d14;
+}
+
+
+.bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  /* Preserve aspet ratio */
+  min-width: 100%;
+  min-height: 100%;
+}
+
+
+
+.remark-code {
+    font-size: 14px;
+}
