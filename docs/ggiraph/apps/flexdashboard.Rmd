@@ -1,0 +1,61 @@
+---
+title: "ggiraph in flexdashboard"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(ggiraph)
+library(DT)
+library(tidyverse)
+
+mytheme <- theme_minimal()
+mytheme <- mytheme + theme( plot.caption = element_text(size = 6) )
+theme_set(mytheme)
+
+
+data <- mtcars %>% rownames_to_column(var = "carname")
+```
+
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### Chart A
+
+```{r}
+gg_point = ggplot(data, aes(x = drat, y = wt,
+                               color = qsec, data_id = carname, 
+                               tooltip = carname) ) +
+  geom_point_interactive(size = 3)
+
+ggiraphOutput("plot")
+
+selected_car <- reactive({
+  if( is.null(input$plot_selected)){
+    character(0)
+  } else input$plot_selected
+})
+
+output$plot <- renderggiraph({
+    ggiraph(ggobj = gg_point, width = 1, 
+            zoom_max = 4, hover_css = "stroke:black;fill:orange;", flexdashboard = TRUE,
+            use_widget_size = TRUE) 
+  })
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### Table 
+
+```{r}
+DT::dataTableOutput("dt_")
+output$dt_ <- DT::renderDataTable({
+  data[data$carname %in% selected_car(),]
+})
+```
+
