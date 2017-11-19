@@ -1,0 +1,945 @@
+---
+title: "Using R as a BI tool"
+author: "<span class='bigtext'>david.gohel @ ardata.fr</span>"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    css: ['default', 'libs/addstyles.css']
+    chakra: 'libs/remark-latest.min.js'
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: 16:9
+---
+
+```{r setup, include=FALSE, message = FALSE, warning = FALSE}
+knitr::opts_chunk$set(echo = TRUE, dev.args=list(bg='transparent', pointsize=10), dev = "svg", 
+                      fig.width = 5, fig.height = 4)
+library(tidyverse)
+library(knitr)
+library(officer)
+library(flextable)
+library(antaDraft)
+library(DT)
+library(lubridate)
+knit_print.flextable = render_flextable
+knit_print.regulartable = render_flextable
+
+theme_ <- theme_minimal() + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+# About me
+
+&gt; 15 years of experience with data :
+
+* statistical software edition
+* CRM software edition
+* retails
+* climate business intelligence
+* web analytics
+* ... to be continued
+
+Favorite tools:
+<img src="img/Rlogo.svg" height="18px">&nbsp;
+`r icon::fa("git")`&nbsp;
+`r icon::fa("google")`&nbsp;
+  
+R packages: [officer](http://cran.r-project.org/package=officer) 
+[flextable](http://cran.r-project.org/package=flextable) 
+[mschart](http://cran.r-project.org/package=mschart) 
+[rvg](http://cran.r-project.org/package=rvg) 
+[ggiraph](http://cran.r-project.org/package=ggiraph) 
+[gdtools](http://cran.r-project.org/package=gdtools) 
+
+
+---
+class: middle, inverse, center
+
+# Business intelligence
+
+> Using internal and external <span class="bigtext">data</span> to provide 
+insights <span class="bigtext">to help decision</span> 
+
+---
+class: middle
+
+
+<p class="sing">BI is consummed by people who are deciding, evaluating or communicating...</p>
+
+
+---
+class: middle
+
+
+<p class="sing">BI is been used on demand and daily/weekly/monthly</p>
+
+
+---
+class: middle
+
+
+<p class="sing">BI is ubiquitous</p>
+
+---
+class: middle
+
+
+<p class="sing">Technically speaking, it is always about:</p>
+
+
+* Structuring data
+* Aggregations
+* Transformations
+* KPI calculation and optimization
+* Reporting
+
+
+
+---
+class: middle, inverse, center
+
+# BI can be made with R
+
+
+---
+class: middle
+
+## Does R fit to BI?
+
+.left-column[
+  ## IO
+]
+
+.right-column[
+
+R can now read and write all data format I may need: 
+
+```{r echo=FALSE}
+tibble::tribble(
+       ~Format,     ~Package,
+   "CSV, TEXT",  "readr",
+       "EXCEL",  "readxl",
+         "SAS",  "haven",
+        "SPSS",  "haven",
+       "STATA",  "haven",
+        "JSON",  "jsonlite",
+        "HTML",  "rvest",
+         "XML",  "xml2",
+        "YAML",  "yaml"
+  ) %>% regulartable() %>% fontsize(size = 16, part = "all") %>% 
+  theme_booktabs() %>% autofit() 
+```
+
+]
+
+
+
+---
+class: middle
+
+## Does R fit to BI?
+
+.left-column[
+  ## IO
+]
+.right-column[
+
+R can now connect to any database (SGBD, big data systems, ...) I may need to access...
+
+The [R consortium](https://www.r-consortium.org), [RStudio team](https://www.rstudio.com) cleaned and improved databases support. 
+
+```{r eval=FALSE}
+library(DBI)
+con <- dbConnect(RPostgres::Postgres(), dbname = 'db_name', host = 'host', 
+  port = 5432, user = 'username', password = 'pwd')
+con <- dbConnect(odbc::odbc(), driver = "PostgreSQL Driver", database = "db_name",
+  uid = "username", pwd = "pwd", host = "host", port = 5432)
+
+res <- dbGetQuery(con, "SELECT * FROM studies limit 5")
+```
+
+See [Databases using R](http://db.rstudio.com/)
+
+
+]
+
+
+
+
+---
+class: middle
+
+## Does R fit to BI?
+
+.left-column[
+  ## IO
+  ## data processing
+]
+.right-column[
+
+[tidyverse](https://www.tidyverse.org/) and [data.table](https://CRAN.R-project.org/package=data.table) packages are covering 99% of necessary operations (join, aggregation, filtering, sorting, etc.).
+
+[fuzzyjoin](https://cran.r-project.org/package=fuzzyjoin) and [tidytext](https://cran.r-project.org/package=tidytext) are easy enough to work with difficult textual data.
+
+]
+
+
+
+---
+class: middle
+
+## Does R fit to BI?
+
+.left-column[
+  ## IO
+  ## data processing
+  ## checking
+]
+.right-column[
+
+
+[lumberjack](http://cran.r-project.org/package=lumberjack/) is providing a logger system to monitor changes in data.
+
+[validate](http://cran.r-project.org/package=validate/) is offering a set of function that will check if data are valid.
+
+Of course, [tidyverse](https://www.tidyverse.org/) and [data.table](https://CRAN.R-project.org/package=data.table) are ubiquitous in this area also.
+
+]
+
+
+---
+class: middle
+
+## Does R fit to BI?
+
+.left-column[
+  ## IO
+  ## data processing
+  ## checking
+  ## exploration
+]
+.right-column[
+
+
+[ggplot2](http://cran.r-project.org/package=ggplot2/) is providing an easy API to plot everything.
+
+[tidyverse](https://www.tidyverse.org/) and [data.table](https://CRAN.R-project.org/package=data.table)...
+
+[htmlwidgets for R - gallery](http://gallery.htmlwidgets.org): interactive visualisations
+
+]
+
+
+
+
+
+---
+class: middle
+
+## Does R fit to BI?
+
+.left-column[
+  ## IO
+  ## data processing
+  ## checking
+  ## exploration
+  ## reporting
+]
+.right-column[
+
+### Static reporting 
+
+[rmarkdown](http://rmarkdown.rstudio.com/) is allowing the production of HTML, PDF, MS Word, HTML dashboard, HTML static web sites. Package [officer](http://cran.r-project.org/package=officer) is offering several options to produce Word and PowerPoint files and package  [openxlsx](http://cran.r-project.org/package=openxlsx) brings a rich API to produce Excel files. 
+
+### Interactive reporting 
+
+[shiny](https://www.rstudio.com/products/shiny-server-pro/) fits very well for small and medium audiences.
+
+[ShinyProxy](https://www.shinyproxy.io/) is also a serious candidate for shiny application.
+
+[RStudio Connect](https://www.rstudio.com/products/connect/) is more than decent enterprise solution (shiny + static pages + scheduler + easy user managment). 
+
+]
+
+
+
+---
+# Successful architectures 
+
+> those I has experienced...
+
+
+.left-column[
+  ## R client
+]
+.right-column[
+
+R fits on an USB key. 
+
+Perfect for simple projects.
+
+]
+
+
+
+
+---
+# Successful architectures 
+
+> those I has experienced...
+
+.left-column[
+  ## R client
+  ## opencpu
+]
+.right-column[
+
+R as a service; an HTTP based server that can be called 
+from any application able to manage HTTP protocol.
+
+Highly secure
+
+Pleases the IT
+
+Requires experienced R coders to develop packages
+
+]
+
+
+
+
+
+
+---
+# Successful architectures 
+
+> those I has experienced...
+
+.left-column[
+  ## R client
+  ## opencpu
+  ## RStudio Connect
+]
+.right-column[
+
+Easy and reliable.
+
+User management, content management, scheduler, etc.
+
+It is not open source
+
+]
+
+
+
+
+---
+# Successful architectures 
+
+> those I has experienced...
+
+.left-column[
+  ## R client
+  ## opencpu
+  ## RStudio Connect
+  ## Rscript
+]
+.right-column[
+
+Good old `crontab` or `Luigi` (build complex pipelines of batch jobs).
+
+See also [littler](https://CRAN.R-project.org/package=littler).
+
+Pleases the IT
+
+For simple jobs
+
+]
+
+
+
+---
+class: middle, inverse, center
+
+# BI with R - pros and cons
+
+
+
+
+---
+# BI with R - The good
+
+--
+
+Thanks to its package ecosystem, R has <span class="bigtext">no functional limit</span>. 
+
+--
+
+By allowing pretty and innovative outputs, <span class="bigtext">R value our work</span>.
+
+--
+
+It cost only an R coder to try and test.
+
+--
+
+**Self BI is now possible and will be required more and more.**
+
+--
+
+**R community will help!**
+
+
+
+---
+
+# BI with R - Cons
+
+--
+
+Resistance from IT teams. *R is a live ecosystem, not a finite solution ready to be installed*.
+
+--
+
+Can be unoptimized. A newbie script is often just a proof it can be done, not a complete and robust analytic.
+
+--
+
+R is a glue system made of many packages and structured by its history, IT IS NOT a database system, it does not come with a visual GUI. 
+
+--
+
+13 000 packages! Choice issue... Again, need for a someone experimented with R.
+
+
+---
+class: middle, inverse, center
+
+# Stories
+
+---
+
+## Reporting with packages `officer` and `mschart`
+
+
+Story: a [yougov](http://www.yougov.com/) service whole role is to *do some BI* was spending too much time preparing PowerPoint documents for business analysts. 
+
+Solution: [mschart](http://cran.r-project.org/package=mschart) to be able to deliver pre-formatted PowerPoints charts from an R analytic. (founder: yougov)
+
+> business analysts still can annotate graphical reports and adapt content without leaving their favorite tool and without vampiring other services precious time.
+
+```{r results='hide'}
+library(officer)
+library(mschart)
+my_barchart <- ms_barchart(data = browser_data, x = "browser", y = "value", group = "serie")
+doc <- read_pptx()
+doc <- add_slide(doc, layout = "Title and Content", master = "Office Theme")
+doc <- ph_with_chart(doc, chart = my_barchart)
+print(doc, target = "samples/barchart_example.pptx")
+```
+
+[barchart_example.pptx](samples/barchart_example.pptx)
+
+---
+## Clinical reporting
+
+Story: reduce time to update clinical reporting (Word format): 
+
+* minimum 80 pages of clinical tables and graphics
+* CDISC model
+* This has to be made several times per study, there are several studies... There is a limited amount of time in a team of 6.
+
+Solution: Developped packages for clinical studies treatment and reporting. When clinical database is updated, reports are generated.
+
+
+---
+## Web analytics stories
+
+Story: a department is not willing to share its data internally, BI coders are stucked.
+
+Solution: use packages [charlatan](https://cran.r-project.org/package=wakefield) or [wakefield](https://cran.r-project.org/package=charlatan) to simulate data according to 
+the *signed contract*. 
+
+> we were no more stuck while arguing with the other department.
+
+
+
+---
+class: middle, inverse, center
+
+# Use case: RTE 
+
+
+---
+# Antares
+
+> a Monte-Carlo software for power systems analysis: 
+A New Tool for Adequacy Reports and Economic Simulations.
+
+* Generation / Load balance studies
+* Economic assessment of Generation projects
+* Economic assessment of Transmission projects
+
+.left-column[
+  ## The need
+]
+
+.right-column[
+
+A tool to generate <span class="bigtext">validated datasets</span> based on data provided by ENTSOE (*european network of transmission system operators for electricity*).
+
+This datasets will be used to play various Monte-carlo scenarii with `antares`.
+
+]
+
+
+---
+# Antares
+
+> a Monte-Carlo software for power systems analysis: 
+A New Tool for Adequacy Reports and Economic Simulations.
+
+* Generation / Load balance studies
+* Economic assessment of Generation projects
+* Economic assessment of Transmission projects
+
+.left-column[
+  ## The need
+  ## Difficulties
+]
+
+.right-column[
+
+* Each country is sending *highly staked* information. Treatments must be specific for each country.
+* Aggregation instructions differ for each country.
+* Some measures are wrong and must be corrected
+
+]
+
+
+---
+# Antares
+
+> a Monte-Carlo software for power systems analysis: 
+A New Tool for Adequacy Reports and Economic Simulations.
+
+* Generation / Load balance studies
+* Economic assessment of Generation projects
+* Economic assessment of Transmission projects
+
+.left-column[
+  ## The need
+  ## Difficulties
+  ## Open source
+]
+
+.right-column[
+
+* Project is beeing hosted on github: https://github.com/rte-antares-rpackage/antaDraft
+* Later on CRAN
+* roughly 50% complete
+* Datasets will be open-sourced also!
+
+]
+
+
+---
+
+```{r echo=FALSE, results='hide', message=FALSE}
+library(antaDraft)
+library(magrittr)
+library(timevis)
+library(DT)
+library(glue)
+library(purrr)
+library(data.table)
+library(flextable)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(ggiraph)
+library(UpSetR)
+library(ggalt)
+library(randomForest)
+
+theme_ <- theme_minimal() + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+load_path <- "/Users/davidgohel/Github/dat.entsoe/load"
+```
+
+## read raw datasets
+
+```{r}
+load_data <- anta_load_read(data_dir = load_path) 
+```
+
+```{r}
+sample_n(load_data, size = 3) %>% regulartable() %>% theme_vanilla() %>% autofit()
+```
+
+> Which countries did not send data from 2015 to 2016?
+
+```{r}
+load_data %>% filter(observed) %>% select(DateTime, country) %>% group_by(country) %>% 
+    summarise(start = min(DateTime, na.rm = TRUE), end = max(DateTime, na.rm = TRUE) ) %>% 
+    filter( year(start) >= 2015 ) %>% 
+  regulartable() %>% theme_vanilla() %>% autofit()
+```
+
+
+---
+## Raw validations
+
+```
+rules:
+
+- expr: observed==TRUE
+  name: IS_OBS
+- expr: is.finite(TotalLoadValue)
+  name: IS_FINITE
+- expr: sign(TotalLoadValue)>0
+  name: IS_POS
+```
+
+
+```{r message=FALSE}
+load_data_v <- antaDraft::augment_validation(load_data)
+```
+
+```{r echo=FALSE}
+load_data_v %>% sample_n(size = 3) %>% regulartable() %>% theme_vanilla() %>% autofit()
+```
+
+
+---
+## Raw validations
+
+> Quality control summary to be sent to data provider
+
+```{r eval=FALSE}
+qc <- load_data_v %>% qualcon()
+dir.create(path = "qc/qc_raw", recursive = TRUE)
+render_quality(qc, dir = "qc/qc_raw")
+```
+
+```{r echo=FALSE}
+htmltools::tags$iframe(src = "qc/qc_raw/FRANCE_[IS_OBS].html", style="width:80%;height:500px;border:0;")
+```
+
+
+---
+## Datasets creation (aggregate messy data...)
+
+
+```{r}
+aggregated_db <- aggregate_with_rules(load_data_v)
+head(sample_n(aggregated_db, size = 10))
+```
+
+---
+## Datasets creation - How?
+
+```
+ITALY:
+  CTY:
+    - IT
+  CTA:
+    - IT
+  BZN:
+    - IT_CNOR
+    - IT_CSUD
+    - IT_NORD
+    - IT_SARD
+    - IT_SICI
+    - IT_SUD
+
+GERMANY:
+  CTY:
+    - DE
+  CTA:
+    - DE_TenneT_GER
+    - DE_TransnetBW
+    - DE_Amprion
+    - DE_50HzT
+  BZN:
+    - DE_AT_LU
+    - "!CTY|AUSTRIA"
+    - "!CTY|LUXEMBOURG"
+
+```
+
+
+
+---
+## Datasets validations
+
+.left-column[
+  ## yaml files
+]
+
+.right-column[
+
+Simple rules to run row by row:
+
+```
+rules:
+
+- expr: is.finite(CTY)
+  name: CTY_NA
+- expr: is.finite(CTA)
+  name: CTA_NA
+- expr: is.finite(BZN)
+  name: BZN_NA
+
+- expr: ((CTY - lag(CTY)) / CTY) < .5 & ((lag(CTY) - CTY) / lag(CTY)) < .5
+  name: CTY_LAG_LT_50
+- expr: ((CTA - lag(CTA)) / CTA) < .5 & ((lag(CTA) - CTA) / lag(CTA)) < .5
+  name: CTA_LAG_LT_50
+- expr: ((BZN - lag(BZN)) / BZN)  < .5 & ((lag(BZN) - BZN) / lag(BZN)) < .5
+  name: BZN_LAG_LT_50
+```
+
+]
+
+
+---
+## Datasets validations
+
+.left-column[
+  ## yaml files
+]
+
+.right-column[
+
+Some rules need to be filtered (false positives)
+
+```
+- drop:
+    - CTY_IS_POS
+    - CTY_CTA_EQUAL
+    - CTY_BZN_EQUAL
+    - CTY_CTA_DIFF_LT_05
+    - CTY_BZN_DIFF_LT_05
+    - CTY_CTA_DIFF_LT_10
+    - CTY_BZN_DIFF_LT_10
+    - CTY_LAG_LT_50
+  when_not:
+    - CTY_NA
+
+- drop:
+    - CTA_BZN_DIFF_LT_05
+    - CTA_BZN_EQUAL
+  when_not:
+    - CTA_BZN_DIFF_LT_10
+```
+
+]
+
+
+---
+## Datasets validations
+
+.left-column[
+  ## yaml files
+  ## Validations
+]
+
+.right-column[
+
+```{r}
+aggregated_db <- augment_validation(aggregated_db)
+head(sample_n(aggregated_db, size = 10))
+```
+
+]
+
+
+
+
+---
+## Datasets validations
+
+.left-column[
+  ## yaml files
+  ## Validations
+]
+
+.right-column[
+
+> made with package `UpSetR`
+
+```{r message=FALSE, echo=FALSE}
+features <- as.matrix( aggregated_db[, attr(aggregated_db, "validators")] ) 
+features <- !features
+mode(features) <- "integer"
+datafeat <- features[aggregated_db$country %in% "FRANCE" & year(aggregated_db$DateTime) == 2015 ,] %>% as.data.frame()
+upset(datafeat, nsets = 7)
+```
+
+]
+
+
+
+---
+## Datasets validations
+
+.left-column[
+  ## yaml files
+  ## Validations
+]
+
+.right-column[
+
+> This country is not playing the game ;)
+
+```{r message=FALSE, echo=FALSE}
+datafeat <- features[aggregated_db$country %in% "LUXEMBOURG",] %>% as.data.frame()
+upset(datafeat, nsets = 7)
+```
+
+]
+
+
+
+---
+## Datasets corrections
+
+.left-column[
+  ## yaml file
+]
+
+.right-column[
+
+> Corrections expressed by an expert
+
+```
+-
+  replace: CTA
+  use: CTY
+  when_false:
+    - CTA_NA
+  when_true:
+    - BZN_NA
+    - CTY_NA
+    - CTY_BZN_EQUAL
+
+-
+  replace: CTY
+  use: CTA
+  country:
+  when_false:
+    - CTY_NA
+  when_true:
+    - BZN_NA
+    - CTA_NA
+    - CTA_BZN_EQUAL
+```
+
+
+]
+
+
+
+---
+## Datasets corrections
+
+.left-column[
+  ## yaml file
+  ## corrections
+]
+
+.right-column[
+
+```{r}
+corrected_db <- aggregated_db %>% 
+  data_correct_with_rules() %>% 
+  augment_process_summary() 
+```
+
+]
+
+
+
+
+
+---
+## Datasets corrections
+
+.left-column[
+  ## yaml file
+  ## corrections
+]
+
+.right-column[
+
+```{r echo=FALSE}
+dat_analysis <- corrected_db %>% 
+  group_by(country, summary ) %>%
+  tally() %>% ungroup() %>%
+  tidyr::complete(country, summary, fill = list(n=0) ) 
+
+dat_analysis %>%
+  tidyr::spread(summary, n) %>%
+  regulartable() %>%
+  theme_booktabs() %>% 
+  fontsize(size = 13, part = "header") %>% 
+  bold(j = 1) %>% 
+  padding(padding.left = 5, padding.right = 5, part = "all") %>% 
+  border(j = 2:4, border.left = fp_border(), part = "all") %>% 
+  autofit()
+```
+
+]
+
+
+
+
+
+---
+## More corrections
+
+Here we are trying to complete invalid data with predictions from a model (random forest)
+
+
+```{r message=FALSE}
+rt_by_country <- readRDS("rf/rt_by_country.RDS")
+```
+
+```{r message=FALSE, echo=FALSE}
+rt_by_country %>% mutate( rsq = map_dbl(model, function(x) mean(x$rsq) ) ) %>% 
+  select(country, rsq) %>% regulartable() %>% theme_booktabs()
+```
+
+
+---
+## More corrections
+
+
+```{r message=FALSE}
+corrected_db = complete_with_model(corrected_db, rt_by_country)
+```
+
+```{r echo=FALSE}
+dat_analysis <- corrected_db %>% 
+  group_by(country, summary ) %>%
+  tally() %>% ungroup() %>%
+  tidyr::complete(country, summary, fill = list(n=0) ) 
+
+dat_analysis %>%
+  tidyr::spread(summary, n) %>%
+  regulartable() %>%
+  theme_booktabs() %>% 
+  border(j = 2:5, border.left = fp_border(), part = "all") %>% 
+  autofit()
+```
+
+
+---
+
+<p class="sing">Thank you</p>
+
+
+Any questions?
+
